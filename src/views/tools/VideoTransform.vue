@@ -49,7 +49,7 @@ function handleChange(uploadFile: UploadFile) {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .video
 {
   width: 400px;

@@ -43,7 +43,7 @@ function handleRemove() {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .container
 {
   width: 100%;

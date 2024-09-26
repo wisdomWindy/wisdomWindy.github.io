@@ -23,7 +23,7 @@ const props = defineProps({
 
 </script>
 
-<style scoped>
+<style scoped >
 .card
 {
   height: 130px;

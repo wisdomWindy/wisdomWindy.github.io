@@ -30,7 +30,7 @@ const menuList = [{
 }];
 </script>
 
-<style scoped>
+<style scoped lang="scss">
  .tool{
   height: 100%;
   display: flex;

@@ -31,9 +31,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          // vue: ['vue'],
+          vue: ['vue'],
           pinia: ['pinia'],
-          // vueRouter: ['vue-router'],
+          vueRouter: ['vue-router'],
           'element-plus': ['element-plus']
         },
         dir: 'docs',

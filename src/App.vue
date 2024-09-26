@@ -24,7 +24,7 @@ onBeforeUnmount(() => {
 
 </script>
 
-<style>
+<style lang="scss">
 .root
 {
   width: 100%;
