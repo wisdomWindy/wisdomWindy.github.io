@@ -1,51 +1,57 @@
-# Sample workflow for building and deploying a Hugo site to GitHub Pages
-name: Deploy wisdomwindy site pages
+name: Deploy portfolio to GitHub Pages
 
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches: [main]
+  workflow_dispatch:
 
-  # Allows you to run this workflow manually from the Actions tab
-  # workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
-  # Build job
   build:
     runs-on: ubuntu-latest
     steps:
-      # 检出代码
-      - name: checkout
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
-          fetch-depth: 0
-      - name: Git Configuration
-        run: |
-          git config --global core.quotePath false
-          git config --global core.autocrlf false
-          git config --global core.safecrlf true
-          git config --global core.ignorecase false  
-      # 安装 PNPM
-      - name: setup PNPM
-        uses: pnpm/action-setup@v2
-        with:
-          version: latest
-      # 安装 node
+          version: 10.31.0
+          run_install: false
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
-          node-version: 18.18.1
-          registry-url: https://registry.npmjs.org
+          node-version: 20
           cache: pnpm
-      # 安装依赖
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
-      # 打包
-      - name: Build
+        run: pnpm install --frozen-lockfile
+      - name: Check types and Astro files
+        run: pnpm check
+      - name: Run unit tests
+        run: pnpm test
+      - name: Build site and search index
         run: pnpm build
-      # 部署
-      - name: Deploy GitHub Pages
-        uses:  JamesIves/github-pages-deploy-action@v4
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
         with:
-          branch: pages
-          folder: docs
+          path: dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

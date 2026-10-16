@@ -6,8 +6,9 @@ const root = resolve(import.meta.dirname, '..')
 
 describe('deployment and legacy contracts', () => {
   it('provides a GitHub Pages workflow with verification and artifact deployment', () => {
-    const workflowPath = resolve(root, '.github/workflows/deploy.yml')
+    const workflowPath = resolve(root, '.github/workflows/main.yml')
     expect(existsSync(workflowPath)).toBe(true)
+    expect(existsSync(resolve(root, '.github/workflows/deploy.yml'))).toBe(false)
     const workflow = readFileSync(workflowPath, 'utf8')
 
     expect(workflow).toContain('actions/configure-pages')
