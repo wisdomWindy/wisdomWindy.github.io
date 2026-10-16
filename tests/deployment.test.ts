@@ -25,7 +25,18 @@ describe('deployment and legacy contracts', () => {
       expect(packageJson).not.toContain(dependency)
     }
 
-    for (const file of ['src/App.vue', 'src/main.ts', 'vite.config.ts', 'index.html']) {
+    for (const file of [
+      'src/App.vue',
+      'src/main.ts',
+      'vite.config.ts',
+      'index.html',
+      '.eslintignore',
+      '.eslintrc.cjs',
+      'docs/index.html',
+      'docs/favicon.ico',
+      'docs/assets',
+      'docs/images',
+    ]) {
       expect(existsSync(resolve(root, file))).toBe(false)
     }
   })
