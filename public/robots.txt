@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://wisdomWindy.github.io/sitemap-index.xml

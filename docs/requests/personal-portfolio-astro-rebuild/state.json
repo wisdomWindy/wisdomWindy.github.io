@@ -1,0 +1,56 @@
+{
+  "request_id": "personal-portfolio-astro-rebuild",
+  "source": {
+    "type": "local_prd",
+    "path": "个人网站prd.md",
+    "approved_approach": "full_astro_rebuild"
+  },
+  "stage": "complete",
+  "status": "complete",
+  "artifacts": {
+    "request": "request.md",
+    "prd_snapshot": "artifacts/prd-snapshot.md",
+    "requirement_analysis": "analysis/requirement-analysis.md",
+    "requirement_map": "requirements/requirement-map.md",
+    "portfolio_site_module": "requirements/modules/portfolio-site.md",
+    "portfolio_site_page_design": "module-runs/portfolio-site/design/page-design.md",
+    "code_context": "artifacts/code-context.md",
+    "portfolio_site_architecture_design": "module-runs/portfolio-site/design/architecture-design.md"
+    ,"portfolio_site_spec": "module-runs/portfolio-site/spec/spec.md"
+    ,"portfolio_site_clarifications": "module-runs/portfolio-site/spec/clarifications.md"
+    ,"portfolio_site_plan": "module-runs/portfolio-site/plan/plan.md"
+    ,"portfolio_site_task_board": "module-runs/portfolio-site/plan/task-board.md"
+  },
+  "approvals": {
+    "recommended_approach_approved": true,
+    "portfolio_site_spec_approved": true,
+    "portfolio_site_plan_approved": true
+  },
+  "module_flow": {
+    "execution_mode": "sequential",
+    "current_module_id": null,
+    "pending_module_ids": [],
+    "completed_module_ids": [
+      "portfolio-site"
+    ],
+    "modules": {
+      "portfolio-site": {
+        "source_module_path": "requirements/modules/portfolio-site.md",
+        "page_design_required": true,
+        "architecture_design_required": true,
+        "approvals": {
+          "spec_approved": true,
+          "plan_approved": true
+        },
+        "status": "completed"
+      }
+    }
+  },
+  "loop": {
+    "iteration": 20,
+    "state": "complete",
+    "last_completed_stage": "review",
+    "pending_gate": null,
+    "reentry_reason": "verification_failed"
+  }
+}

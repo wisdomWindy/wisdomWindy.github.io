@@ -1,0 +1,130 @@
+---
+import { ArrowRight, CodeXml, Mail } from '@lucide/astro'
+import IconLink from '../components/IconLink.astro'
+import ProjectCard from '../components/ProjectCard.astro'
+import SectionHeading from '../components/SectionHeading.astro'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { estimateReadingMinutes, getFeaturedProjects, getPublishedPosts } from '../lib/content'
+import { formatDate, formatReadingTime } from '../lib/format'
+import { siteConfig } from '../site.config'
+
+const projects = await getFeaturedProjects()
+const posts = (await getPublishedPosts()).slice(0, 3)
+---
+
+<BaseLayout>
+  <section class="home-hero">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Portfolio / 2021—Now</p>
+        <h1>{siteConfig.name}</h1>
+        <p class="hero-role">{siteConfig.role}</p>
+        <p class="hero-summary">从 2021 年至今，持续专注前端工程化、可用性与用户体验，把复杂需求转化为稳定的产品界面。</p>
+        <div class="hero-links" aria-label="公开联系方式">
+          <IconLink href={siteConfig.github} label="GitHub" external><CodeXml aria-hidden="true" size={20} /></IconLink>
+          <IconLink href={`mailto:${siteConfig.email}`} label="电子邮件"><Mail aria-hidden="true" size={20} /></IconLink>
+        </div>
+        <div class="hero-actions">
+          <a class="button-link" href="/projects/">查看作品 <ArrowRight aria-hidden="true" size={18} /></a>
+          <a class="button-link button-link--secondary" href="/contact/">联系我</a>
+        </div>
+      </div>
+      <img class="hero-visual" src="/images/identity-wisdom-windy.webp" width="960" height="960" alt="wisdomWindy 的 W 字抽象身份图" fetchpriority="high" />
+    </div>
+  </section>
+
+  <section class="skills-band section section--subtle">
+    <div class="container">
+      <SectionHeading eyebrow="Capabilities" title="技能与方法" description="用工程约束保障交付，用可访问性和性能标准校验体验。" />
+      <div class="skill-grid">
+        {siteConfig.skills.map((group, index) => (
+          <section class="skill-group">
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <h3>{group.name}</h3>
+            <ul>{group.items.map((item) => <li>{item}</li>)}</ul>
+          </section>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-row">
+        <SectionHeading eyebrow="Selected Work" title="精选项目" description="从内容系统、媒体工具到导航模型，记录问题、取舍与验证方法。" />
+        <a class="text-link" href="/projects/">查看全部项目 <ArrowRight aria-hidden="true" size={17} /></a>
+      </div>
+      {projects.length > 0 ? <div class="project-grid">{projects.map((project, index) => <ProjectCard project={project} eager={index === 0} />)}</div> : <p>精选项目正在整理，可以先查看全部项目。</p>}
+    </div>
+  </section>
+
+  <section class="writing section section--subtle">
+    <div class="container writing-inner">
+      <div class="section-row">
+        <SectionHeading eyebrow="Latest Notes" title="最新文章" description="关于架构选择、界面状态与可访问实践的持续记录。" />
+        <a class="text-link" href="/blog/">进入博客 <ArrowRight aria-hidden="true" size={17} /></a>
+      </div>
+      <div class="post-list">
+        {posts.map((post) => (
+          <article>
+            <div class="post-meta"><time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time><span>{formatReadingTime(post.data.readingTime ?? estimateReadingMinutes(post.body ?? ''))}</span></div>
+            <h3><a href={`/blog/${post.id}/`}>{post.data.title}</a></h3>
+            <p>{post.data.description}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="contact-band section">
+    <div class="container contact-inner">
+      <div><p class="eyebrow">Start a Conversation</p><h2>一起把问题说清楚，再把产品做扎实。</h2></div>
+      <a class="button-link" href="/contact/">联系我 <ArrowRight aria-hidden="true" size={18} /></a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .home-hero { display: grid; min-height: calc(100svh - var(--header-height) - 76px); align-items: center; padding-block: 38px 68px; }
+  .hero-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(360px, 1.1fr); align-items: center; gap: clamp(40px, 8vw, 112px); }
+  h1 { margin: 0; font-size: 4.5rem; line-height: .94; letter-spacing: 0; }
+  .hero-role { margin: 21px 0 0; font-size: 1.28rem; font-weight: 750; }
+  .hero-summary { max-width: 37rem; margin: 13px 0 20px; color: var(--ink-muted); }
+  .hero-links, .hero-actions { display: flex; gap: 10px; }
+  .hero-actions { flex-wrap: wrap; margin-top: 22px; }
+  .hero-visual { width: 100%; height: auto; aspect-ratio: 1; border: 1px solid var(--line); }
+  .skill-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
+  .skill-group { padding: 26px 28px 8px 0; border-right: 1px solid var(--line); }
+  .skill-group + .skill-group { padding-left: 28px; }
+  .skill-group:last-child { border-right: 0; }
+  .skill-group > span { color: var(--accent); font: 700 .74rem/1 ui-monospace, monospace; }
+  .skill-group h3 { margin: 8px 0 12px; font-size: 1.08rem; letter-spacing: 0; }
+  .skill-group ul { display: flex; flex-wrap: wrap; gap: 7px; margin: 0; padding: 0; list-style: none; }
+  .skill-group li { color: var(--ink-muted); font-size: .84rem; }
+  .section-row { display: flex; align-items: end; justify-content: space-between; gap: 32px; }
+  .text-link { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 7px; margin-bottom: 36px; color: var(--brand); font-size: .88rem; font-weight: 750; text-decoration: none; }
+  .writing-inner { max-width: 960px; }
+  .post-list { border-top: 1px solid var(--line); }
+  .post-list article { display: grid; grid-template-columns: 180px minmax(240px, 1fr) 1.2fr; gap: 28px; padding: 24px 0; border-bottom: 1px solid var(--line); }
+  .post-meta { color: var(--ink-muted); font-size: .74rem; }
+  .post-meta span { display: block; }
+  .post-list h3, .post-list p { margin: 0; }
+  .post-list h3 { font-size: 1.05rem; letter-spacing: 0; }
+  .post-list h3 a { text-decoration: none; }
+  .post-list p { color: var(--ink-muted); font-size: .88rem; }
+  .contact-inner { display: flex; align-items: center; justify-content: space-between; gap: 48px; }
+  .contact-inner h2 { max-width: 760px; margin: 0; font-size: 3.5rem; line-height: 1.08; letter-spacing: 0; }
+  @media (max-width: 759px) {
+    .home-hero { min-height: auto; padding-top: 28px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 34px; }
+    .hero-copy { grid-row: 2; min-width: 0; }
+    .hero-visual { width: min(100%, 430px); margin-inline: auto; }
+    h1 { font-size: 3rem; overflow-wrap: anywhere; }
+    .skill-grid { grid-template-columns: 1fr; }
+    .skill-group, .skill-group + .skill-group { padding: 22px 0; border-right: 0; border-bottom: 1px solid var(--line); }
+    .section-row, .contact-inner { align-items: flex-start; flex-direction: column; gap: 0; }
+    .post-list article { grid-template-columns: 1fr; gap: 8px; }
+    .contact-inner h2 { font-size: 2rem; }
+    .contact-inner .button-link { margin-top: 28px; }
+  }
+</style>

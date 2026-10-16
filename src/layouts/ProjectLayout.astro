@@ -1,0 +1,193 @@
+---
+import { ArrowLeft, ArrowRight, ExternalLink } from '@lucide/astro'
+import type { CollectionEntry } from 'astro:content'
+import BaseLayout from './BaseLayout.astro'
+import { formatDate } from '../lib/format'
+
+interface Props {
+  project: CollectionEntry<'projects'>
+  previous?: CollectionEntry<'projects'>
+  next?: CollectionEntry<'projects'>
+}
+
+const { project, previous, next } = Astro.props
+---
+
+<BaseLayout title={project.data.title} description={project.data.description} image={project.data.cover.src}>
+  <article data-pagefind-body>
+    <header class="project-hero section">
+      <div class="container">
+        <p class="eyebrow">Project / {project.data.pubDate.getUTCFullYear()}</p>
+        <h1 data-pagefind-meta="title">{project.data.title}</h1>
+        <p class="project-hero__description">{project.data.description}</p>
+        <img src={project.data.cover.src} width="1200" height="750" alt={project.data.cover.alt} />
+      </div>
+    </header>
+
+    <div class="project-content container section">
+      <div class="prose">
+        <slot />
+      </div>
+      <aside class="project-facts" aria-label="项目信息">
+        <dl>
+          <div><dt>日期</dt><dd>{formatDate(project.data.pubDate)}</dd></div>
+          <div><dt>技术</dt><dd>{project.data.techStack.join(' · ')}</dd></div>
+          {project.data.outcome && <div><dt>结果</dt><dd>{project.data.outcome}</dd></div>}
+        </dl>
+        <div class="project-links">
+          {project.data.github && (
+            <a href={project.data.github} target="_blank" rel="noreferrer">查看代码 <ExternalLink aria-hidden="true" size={16} /></a>
+          )}
+          {project.data.demo && (
+            <a href={project.data.demo} target="_blank" rel="noreferrer">打开演示 <ExternalLink aria-hidden="true" size={16} /></a>
+          )}
+        </div>
+      </aside>
+    </div>
+
+    <nav class="adjacent container" aria-label="相邻项目">
+      {previous ? (
+        <a href={`/projects/${previous.id}/`}>
+          <ArrowLeft aria-hidden="true" size={18} />
+          <span><small>上一个</small>{previous.data.title}</span>
+        </a>
+      ) : <span />}
+      {next && (
+        <a class="adjacent__next" href={`/projects/${next.id}/`}>
+          <span><small>下一个</small>{next.data.title}</span>
+          <ArrowRight aria-hidden="true" size={18} />
+        </a>
+      )}
+    </nav>
+  </article>
+</BaseLayout>
+
+<style>
+  .project-hero {
+    padding-bottom: 0;
+  }
+
+  h1 {
+    max-width: 900px;
+    margin: 0;
+    font-size: 4.8rem;
+    line-height: 1;
+    letter-spacing: 0;
+  }
+
+  .project-hero__description {
+    max-width: 680px;
+    margin: 24px 0 36px;
+    color: var(--ink-muted);
+    font-size: 1.12rem;
+  }
+
+  .project-hero img {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border: 1px solid var(--line);
+  }
+
+  .project-content {
+    display: grid;
+    grid-template-columns: minmax(0, var(--reading)) 240px;
+    justify-content: center;
+    align-items: start;
+    gap: clamp(48px, 8vw, 96px);
+  }
+
+  .project-facts {
+    position: sticky;
+    top: calc(var(--header-height) + 28px);
+    padding-top: 4px;
+  }
+
+  dl {
+    margin: 0;
+  }
+
+  dl div {
+    padding: 14px 0;
+    border-top: 1px solid var(--line);
+  }
+
+  dt {
+    color: var(--ink-muted);
+    font-size: 0.72rem;
+    font-weight: 750;
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 5px 0 0;
+    font-size: 0.88rem;
+  }
+
+  .project-links a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
+    color: var(--brand);
+    font-size: 0.84rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .adjacent {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding-block: 0 96px;
+  }
+
+  .adjacent a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-block: 20px;
+    border-block: 1px solid var(--line);
+    color: var(--ink);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .adjacent small {
+    display: block;
+    color: var(--ink-muted);
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  .adjacent__next {
+    justify-content: flex-end;
+    text-align: right;
+  }
+
+  @media (max-width: 899px) {
+    h1 {
+      font-size: 3rem;
+    }
+
+    .project-content {
+      grid-template-columns: 1fr;
+    }
+
+    .project-facts {
+      position: static;
+      grid-row: 1;
+    }
+  }
+
+  @media (max-width: 559px) {
+    h1 {
+      font-size: 2.5rem;
+    }
+
+    .adjacent {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,37 @@
+---
+import { CodeXml, Mail } from '@lucide/astro'
+import ContactForm from '../components/ContactForm.astro'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { siteConfig } from '../site.config'
+---
+
+<BaseLayout title="联系" description="通过邮件或 GitHub 联系 wisdomWindy，讨论前端项目、工程实践或合作机会。">
+  <header class="page-header section"><div class="container"><p class="eyebrow">Contact</p><h1>联系我</h1><p>如果你有具体问题、项目设想或想交流前端工程实践，可以留下必要上下文。</p></div></header>
+  <section class="section section--subtle"><div class="container contact-grid">
+    <ContactForm />
+    <aside class="contact-aside" aria-label="其他联系方式">
+      <p class="eyebrow">Direct Channels</p>
+      <h2>其他联系方式</h2>
+      <p>表单不会把数据发送到服务器。如果你更喜欢直接联系，可以使用下列公开渠道。</p>
+      <ul>
+        <li><Mail aria-hidden="true" size={20} /><div><span>邮箱</span><a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a></div></li>
+        <li><CodeXml aria-hidden="true" size={20} /><div><span>GitHub</span><a href={siteConfig.github} target="_blank" rel="noreferrer">github.com/wisdomWindy</a></div></li>
+      </ul>
+    </aside>
+  </div></section>
+</BaseLayout>
+
+<style>
+  .page-header { padding-bottom: 56px; }
+  h1 { margin: 0; font-size: 5rem; line-height: 1; letter-spacing: 0; }
+  .page-header p:last-child { max-width: 660px; margin: 20px 0 0; color: var(--ink-muted); font-size: 1.08rem; }
+  .contact-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(260px, 2fr); gap: clamp(50px, 9vw, 120px); align-items: start; }
+  .contact-aside { padding-left: clamp(28px, 5vw, 58px); border-left: 1px solid var(--line); }
+  .contact-aside h2 { margin: 0 0 14px; font-size: 1.5rem; letter-spacing: 0; }
+  .contact-aside > p:not(.eyebrow) { color: var(--ink-muted); }
+  .contact-aside ul { margin: 30px 0 0; padding: 0; list-style: none; }
+  .contact-aside li { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 17px 0; border-top: 1px solid var(--line); }
+  .contact-aside span { display: block; color: var(--ink-muted); font-size: .72rem; }
+  .contact-aside a { color: var(--brand); font-size: .86rem; overflow-wrap: anywhere; }
+  @media (max-width: 759px) { h1 { font-size: 3.2rem; } .contact-grid { grid-template-columns: 1fr; } .contact-aside { padding: 36px 0 0; border-top: 1px solid var(--line); border-left: 0; } }
+</style>

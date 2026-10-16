@@ -1,25 +1,12 @@
 {
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    },
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.vitest.json"
-    }
+  "extends": "astro/tsconfigs/strict",
+  "include": [
+    ".astro/types.d.ts",
+    "src/**/*",
+    "tests/**/*",
+    "e2e/**/*",
+    "*.ts",
+    "*.mjs"
   ],
-  "compilerOptions": {
-    "allowImportingTsExtensions": true,
-    "emitDeclarationOnly": true,
-    "declaration": true,
-    "allowJs": false,
-    "declarationDir": "./src/types",
-    "rootDirs": ["./src/"],
-    "esModuleInterop": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true
-  }
+  "exclude": ["dist", "docs", "node_modules", "playwright-report", "test-results"]
 }

@@ -1,0 +1,40 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import { ArrowLeft } from '@lucide/astro'
+import BlogPostRow from '../../../components/BlogPostRow.astro'
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import { getAllTags, getPublishedPosts } from '../../../lib/content'
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts()
+  return getAllTags(posts).map((tag) => ({
+    params: { tag: tag.slug },
+    props: {
+      tag,
+      posts: posts.filter((post) => post.data.tags.some((label) => label.toLocaleLowerCase('en-US') === tag.label.toLocaleLowerCase('en-US'))),
+    },
+  }))
+}
+
+interface Props {
+  tag: { label: string; slug: string; count: number }
+  posts: CollectionEntry<'blog'>[]
+}
+
+const { tag, posts } = Astro.props
+---
+
+<BaseLayout title={`标签：${tag.label}`} description={`查看 wisdomWindy 关于 ${tag.label} 的技术文章。`}>
+  <header class="tag-header section"><div class="tag-width"><p class="eyebrow">Topic</p><h1>标签：{tag.label}</h1><p>共 {posts.length} 篇文章</p></div></header>
+  <main class="section section--subtle"><div class="tag-width"><div class="post-list">{posts.map((post) => <BlogPostRow post={post} />)}</div><a class="return-link" href="/blog/"><ArrowLeft aria-hidden="true" size={17} /> 返回全部文章</a></div></main>
+</BaseLayout>
+
+<style>
+  .tag-width { width: min(calc(100% - 40px), 960px); margin-inline: auto; }
+  .tag-header { padding-bottom: 56px; }
+  h1 { margin: 0; font-size: 4.2rem; line-height: 1.05; letter-spacing: 0; overflow-wrap: anywhere; }
+  .tag-header p:last-child { margin: 18px 0 0; color: var(--ink-muted); }
+  .post-list { border-top: 1px solid var(--line); }
+  .return-link { display: inline-flex; align-items: center; gap: 7px; margin-top: 34px; color: var(--brand); font-weight: 700; text-decoration: none; }
+  @media (max-width: 639px) { h1 { font-size: 2.4rem; } .tag-width { width: min(calc(100% - 28px), 960px); } }
+</style>

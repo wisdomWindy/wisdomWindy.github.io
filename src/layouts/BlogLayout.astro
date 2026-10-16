@@ -1,0 +1,76 @@
+---
+import { ArrowLeft, ArrowRight } from '@lucide/astro'
+import type { CollectionEntry } from 'astro:content'
+import type { MarkdownHeading } from 'astro'
+import ArticleToc from '../components/ArticleToc.astro'
+import { estimateReadingMinutes, slugifyTag } from '../lib/content'
+import { formatDate, formatReadingTime } from '../lib/format'
+import BaseLayout from './BaseLayout.astro'
+
+interface Props {
+  post: CollectionEntry<'blog'>
+  headings: MarkdownHeading[]
+  previous?: CollectionEntry<'blog'>
+  next?: CollectionEntry<'blog'>
+}
+
+const { post, headings, previous, next } = Astro.props
+const readingTime = post.data.readingTime ?? estimateReadingMinutes(post.body ?? '')
+---
+
+<BaseLayout title={post.data.title} description={post.data.description} image={post.data.cover?.src} type="article">
+  <article data-pagefind-body>
+    <header class="article-header section">
+      <div class="reading-width">
+        <p class="eyebrow">Technical Note</p>
+        <h1 data-pagefind-meta="title">{post.data.title}</h1>
+        <p class="article-summary">{post.data.description}</p>
+        <div class="article-meta">
+          <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+          {post.data.updatedDate && <span>更新于 {formatDate(post.data.updatedDate)}</span>}
+          <span>{formatReadingTime(readingTime)}</span>
+        </div>
+        <ul class="article-tags" aria-label="文章标签">{post.data.tags.map((tag) => <li><a href={`/blog/tags/${slugifyTag(tag)}/`}>{tag}</a></li>)}</ul>
+      </div>
+    </header>
+
+    <div class="article-mobile-toc reading-width"><ArticleToc headings={headings} mobile /></div>
+    <div class="article-content container section">
+      <div class="prose"><slot /></div>
+      <aside class="article-rail"><ArticleToc headings={headings} /></aside>
+    </div>
+
+    <nav class="article-adjacent reading-width" aria-label="相邻文章">
+      {previous ? <a href={`/blog/${previous.id}/`}><ArrowLeft aria-hidden="true" size={18} /><span><small>上一篇</small>{previous.data.title}</span></a> : <span />}
+      {next && <a class="article-adjacent__next" href={`/blog/${next.id}/`}><span><small>下一篇</small>{next.data.title}</span><ArrowRight aria-hidden="true" size={18} /></a>}
+    </nav>
+  </article>
+</BaseLayout>
+
+<style>
+  .reading-width { width: min(calc(100% - 40px), var(--reading)); margin-inline: auto; }
+  .article-header { padding-bottom: 52px; }
+  h1 { margin: 0; font-size: 4.2rem; line-height: 1.07; letter-spacing: 0; overflow-wrap: anywhere; }
+  .article-summary { margin: 24px 0 18px; color: var(--ink-muted); font-size: 1.08rem; }
+  .article-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--ink-muted); font-size: .78rem; }
+  .article-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; }
+  .article-tags a { display: block; padding: 4px 9px; border: 1px solid var(--line); border-radius: 4px; color: var(--brand); font-size: .74rem; text-decoration: none; }
+  .article-mobile-toc { display: none; }
+  .article-content { display: grid; grid-template-columns: minmax(0, var(--reading)) 220px; justify-content: center; align-items: start; gap: clamp(48px, 7vw, 84px); padding-top: 0; }
+  .article-rail { position: sticky; top: calc(var(--header-height) + 28px); }
+  .article-adjacent { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding-bottom: 96px; }
+  .article-adjacent a { display: flex; align-items: center; gap: 12px; padding-block: 20px; border-block: 1px solid var(--line); font-weight: 700; text-decoration: none; }
+  .article-adjacent small { display: block; color: var(--ink-muted); font-size: .7rem; font-weight: 600; }
+  .article-adjacent__next { justify-content: flex-end; text-align: right; }
+  @media (max-width: 999px) {
+    h1 { font-size: 3.2rem; }
+    .article-mobile-toc { display: block; }
+    .article-content { grid-template-columns: minmax(0, var(--reading)); padding-top: 0; }
+    .article-rail { display: none; }
+  }
+  @media (max-width: 639px) {
+    h1 { font-size: 2.4rem; }
+    .reading-width { width: min(calc(100% - 28px), var(--reading)); }
+    .article-adjacent { grid-template-columns: 1fr; }
+  }
+</style>

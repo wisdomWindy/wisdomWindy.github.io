@@ -1,0 +1,40 @@
+---
+interface Props {
+  href: string
+  label: string
+  title?: string
+  external?: boolean
+}
+
+const { href, label, title = label, external = false } = Astro.props
+---
+
+<a
+  class="icon-link"
+  href={href}
+  aria-label={label}
+  title={title}
+  target={external ? '_blank' : undefined}
+  rel={external ? 'noreferrer' : undefined}
+>
+  <slot />
+</a>
+
+<style>
+  .icon-link {
+    display: inline-grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--ink-muted);
+    text-decoration: none;
+  }
+
+  .icon-link:hover {
+    border-color: var(--ink-muted);
+    background: var(--surface-subtle);
+    color: var(--ink);
+  }
+</style>

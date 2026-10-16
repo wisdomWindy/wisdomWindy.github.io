@@ -1,0 +1,219 @@
+---
+import { Menu, X } from '@lucide/astro'
+import { siteConfig } from '../site.config'
+import ThemeToggle from './ThemeToggle.astro'
+
+interface Props {
+  currentPath: string
+}
+
+const { currentPath } = Astro.props
+const isCurrent = (href: string) => href === '/' ? currentPath === '/' : currentPath.startsWith(href)
+---
+
+<header class="site-header" data-site-header>
+  <div class="header-inner container">
+    <a class="brand" href="/" aria-label="wisdomWindy">
+      <span class="brand-mark" aria-hidden="true">W</span>
+      <span>wisdomWindy</span>
+    </a>
+
+    <nav id="primary-navigation" class="primary-nav" aria-label="主导航">
+      {siteConfig.nav.map((item) => (
+        <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a>
+      ))}
+      <a class="search-link" href="/search/">搜索</a>
+    </nav>
+
+    <div class="header-actions">
+      <ThemeToggle />
+      <button
+        class="icon-button menu-toggle"
+        type="button"
+        aria-label="打开导航菜单"
+        aria-controls="primary-navigation"
+        aria-expanded="false"
+        title="导航菜单"
+      >
+        <Menu class="menu-icon" aria-hidden="true" size={21} stroke-width={1.8} />
+        <X class="close-icon" aria-hidden="true" size={21} stroke-width={1.8} />
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  const setupHeader = () => {
+    const header = document.querySelector<HTMLElement>('[data-site-header]')
+    if (!header || header.dataset.ready === 'true') return
+    const button = header.querySelector<HTMLButtonElement>('.menu-toggle')
+    const navigation = header.querySelector<HTMLElement>('.primary-nav')
+    if (!button || !navigation) return
+    header.dataset.ready = 'true'
+
+    const close = (restoreFocus = false) => {
+      header.removeAttribute('data-menu-open')
+      button.setAttribute('aria-expanded', 'false')
+      button.setAttribute('aria-label', '打开导航菜单')
+      if (restoreFocus) button.focus()
+    }
+
+    button.addEventListener('click', () => {
+      const isOpen = button.getAttribute('aria-expanded') === 'true'
+      if (isOpen) {
+        close()
+      } else {
+        header.setAttribute('data-menu-open', '')
+        button.setAttribute('aria-expanded', 'true')
+        button.setAttribute('aria-label', '关闭导航菜单')
+      }
+    })
+
+    navigation.addEventListener('click', (event) => {
+      if ((event.target as HTMLElement).closest('a')) close()
+    })
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && button.getAttribute('aria-expanded') === 'true') close(true)
+    })
+
+    matchMedia('(min-width: 760px)').addEventListener('change', (event) => {
+      if (event.matches) close()
+    })
+  }
+
+  setupHeader()
+  document.addEventListener('astro:page-load', setupHeader)
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    z-index: 30;
+    top: 0;
+    height: var(--header-height);
+    border-bottom: 1px solid var(--line);
+    background: var(--header);
+    backdrop-filter: blur(12px);
+  }
+
+  .header-inner {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .brand {
+    display: inline-flex;
+    min-width: 0;
+    align-items: center;
+    gap: 10px;
+    color: var(--ink);
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .brand-mark {
+    display: grid;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    place-items: center;
+    border-radius: 5px;
+    background: var(--ink);
+    color: var(--surface);
+    font-size: 0.9rem;
+  }
+
+  .primary-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+  }
+
+  .primary-nav a {
+    padding: 8px 11px;
+    border-radius: 4px;
+    color: var(--ink-muted);
+    font-size: 0.92rem;
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .primary-nav a:hover,
+  .primary-nav a[aria-current='page'] {
+    background: var(--surface-subtle);
+    color: var(--ink);
+  }
+
+  .primary-nav a[aria-current='page'] {
+    box-shadow: inset 0 -2px var(--brand);
+  }
+
+  .search-link {
+    margin-left: 6px;
+    border-left: 1px solid var(--line);
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .menu-toggle {
+    display: none;
+  }
+
+  .close-icon {
+    display: none;
+  }
+
+  @media (max-width: 759px) {
+    .header-inner {
+      gap: 12px;
+    }
+
+    .header-actions {
+      margin-left: auto;
+    }
+
+    .menu-toggle {
+      display: inline-grid;
+    }
+
+    .primary-nav {
+      position: absolute;
+      top: var(--header-height);
+      right: 0;
+      left: 0;
+      display: none;
+      padding: 10px 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .primary-nav a {
+      display: block;
+      padding: 11px 14px;
+    }
+
+    .search-link {
+      margin-left: 0;
+      border-left: 0;
+    }
+
+    .site-header[data-menu-open] .primary-nav {
+      display: block;
+    }
+
+    .site-header[data-menu-open] .menu-icon {
+      display: none;
+    }
+
+    .site-header[data-menu-open] .close-icon {
+      display: block;
+    }
+  }
+</style>

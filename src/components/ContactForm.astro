@@ -1,0 +1,105 @@
+---
+import { ExternalLink } from '@lucide/astro'
+---
+
+<form class="contact-form" data-contact-form novalidate>
+  <div class="error-summary" role="alert" tabindex="-1" hidden></div>
+  <div class="field">
+    <label for="contact-name">姓名</label>
+    <input id="contact-name" name="name" type="text" required minlength="2" maxlength="60" autocomplete="name" aria-describedby="name-error" />
+    <p id="name-error" class="field-error"></p>
+  </div>
+  <div class="field">
+    <label for="contact-email">邮箱</label>
+    <input id="contact-email" name="email" type="email" required maxlength="254" autocomplete="email" aria-describedby="email-error" />
+    <p id="email-error" class="field-error"></p>
+  </div>
+  <div class="field">
+    <label for="contact-message">留言</label>
+    <textarea id="contact-message" name="message" required minlength="20" maxlength="2000" rows="8" aria-describedby="message-error"></textarea>
+    <div class="field-help"><p id="message-error" class="field-error"></p><span>最多 2000 字符</span></div>
+  </div>
+  <p class="mail-note">提交后将打开你的默认邮件应用，并填入收件人、主题和正文。</p>
+  <button class="button-link submit-button" type="submit">打开邮件应用 <ExternalLink aria-hidden="true" size={18} />
+  </button>
+</form>
+
+<script>
+  import { buildMailto, normalizeContact, validateContact, type ContactValues } from '../lib/contact'
+
+  const setupContactForm = () => {
+    const form = document.querySelector<HTMLFormElement>('[data-contact-form]')
+    if (!form || form.dataset.ready === 'true') return
+    form.dataset.ready = 'true'
+    const summary = form.querySelector<HTMLElement>('.error-summary')
+    const fields = ['name', 'email', 'message'] as const
+
+    const values = (): ContactValues => ({
+      name: (form.elements.namedItem('name') as HTMLInputElement).value,
+      email: (form.elements.namedItem('email') as HTMLInputElement).value,
+      message: (form.elements.namedItem('message') as HTMLTextAreaElement).value,
+    })
+
+    const renderFieldError = (field: typeof fields[number], message?: string) => {
+      const input = form.elements.namedItem(field) as HTMLInputElement | HTMLTextAreaElement
+      const error = form.querySelector<HTMLElement>(`#${field}-error`)
+      if (error) error.textContent = message ?? ''
+      input.setAttribute('aria-invalid', String(Boolean(message)))
+    }
+
+    for (const field of fields) {
+      const input = form.elements.namedItem(field) as HTMLInputElement | HTMLTextAreaElement
+      input.addEventListener('blur', () => renderFieldError(field, validateContact(values())[field]))
+      input.addEventListener('input', () => {
+        if (input.getAttribute('aria-invalid') === 'true' && !validateContact(values())[field]) renderFieldError(field)
+      })
+    }
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault()
+      const current = values()
+      const errors = validateContact(current)
+      for (const field of fields) renderFieldError(field, errors[field])
+      const invalidFields = fields.filter((field) => errors[field])
+
+      if (invalidFields.length > 0) {
+        if (summary) {
+          summary.hidden = false
+          summary.textContent = `请修正 ${invalidFields.length} 个字段后再继续。`
+        }
+        ;(form.elements.namedItem(invalidFields[0]) as HTMLElement).focus()
+        return
+      }
+
+      if (summary) {
+        summary.hidden = true
+        summary.textContent = ''
+      }
+      const normalized = normalizeContact(current)
+      const mailto = buildMailto(normalized)
+      form.dataset.mailto = mailto
+      window.location.href = mailto
+    })
+  }
+
+  setupContactForm()
+  document.addEventListener('astro:page-load', setupContactForm)
+</script>
+
+<style>
+  .contact-form { min-width: 0; }
+  .error-summary { margin-bottom: 24px; padding: 13px 15px; border-left: 3px solid var(--accent); background: var(--surface-subtle); color: var(--ink); font-weight: 700; }
+  .error-summary[hidden] { display: none; }
+  .field + .field { margin-top: 20px; }
+  label { display: block; margin-bottom: 7px; font-size: .84rem; font-weight: 750; }
+  input, textarea { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); color: var(--ink); }
+  input { min-height: 46px; }
+  textarea { min-height: 190px; resize: vertical; }
+  input:focus, textarea:focus { border-color: var(--focus); outline: 3px solid color-mix(in srgb, var(--focus) 18%, transparent); outline-offset: 1px; }
+  [aria-invalid='true'] { border-color: var(--accent); }
+  .field-help { display: flex; justify-content: space-between; gap: 16px; min-height: 24px; }
+  .field-help span { flex: 0 0 auto; color: var(--ink-muted); font-size: .72rem; }
+  .field-error { min-height: 24px; margin: 3px 0 0; color: var(--accent); font-size: .76rem; }
+  .mail-note { margin: 24px 0 14px; color: var(--ink-muted); font-size: .82rem; }
+  .submit-button { border: 0; cursor: pointer; }
+</style>

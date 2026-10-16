@@ -1,0 +1,84 @@
+---
+import { ArrowRight } from '@lucide/astro'
+import SectionHeading from '../components/SectionHeading.astro'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { siteConfig } from '../site.config'
+---
+
+<BaseLayout title="关于我" description="wisdomWindy 的前端工程实践、技能方向与工作方法。">
+  <header class="page-header section">
+    <div class="container about-intro">
+      <div>
+        <p class="eyebrow">About</p>
+        <h1>关于我</h1>
+        <p class="intro-copy">我是 {siteConfig.name}，一名关注工程质量与真实使用体验的前端开发工程师。我喜欢把模糊需求整理成明确契约，再用可测试的实现一步步落地。</p>
+      </div>
+      <dl class="facts">
+        <div><dt>实践时间</dt><dd>2021 至今</dd></div>
+        <div><dt>专注方向</dt><dd>前端工程化、可用性、响应式产品</dd></div>
+        <div><dt>公开联系</dt><dd><a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a></dd></div>
+      </dl>
+    </div>
+  </header>
+
+  <section class="section section--subtle">
+    <div class="container">
+      <SectionHeading eyebrow="Capabilities" title="技能地图" description="技术选择服务于产品目标，工具、质量与体验缺一不可。" />
+      <div class="about-skills">
+        {siteConfig.skills.map((group) => <section><h2>{group.name}</h2><ul>{group.items.map((item) => <li>{item}</li>)}</ul></section>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container experience">
+      <SectionHeading eyebrow="Practice" title="实践时间线" />
+      <ol>
+        <li><time>2021—2023</time><div><h2>建立可维护的界面基础</h2><p>从组件、路由与状态边界出发，累积 Vue、TypeScript 和浏览器 API 实践。</p></div></li>
+        <li><time>2024—2025</time><div><h2>把测试与可访问性放进交付流程</h2><p>使用 Vitest 和 Playwright 保护关键行为，把键盘、焦点和响应式状态纳入验收。</p></div></li>
+        <li><time>2026—至今</time><div><h2>聚焦内容体系与静态产品架构</h2><p>以 Astro 和构建期契约组织项目证据、技术写作与搜索发现。</p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--subtle"><div class="container supporting-grid">
+    <div><p class="eyebrow">Interests</p><h2>持续关注</h2><p>开源工具、工程写作、可访问产品和复杂问题的可视化表达。</p></div>
+    <div class="resume-state"><p class="eyebrow">Resume</p><h2>简历暂未开放下载</h2><p>当简历 PDF 完成核验后，这里会替换为正式下载入口。目前可通过联系页与我取得联系。</p></div>
+  </div></section>
+
+  <section class="section"><div class="container about-contact"><h2>想讨论项目、工程实践或合作机会？</h2><a class="button-link" href="/contact/">前往联系页 <ArrowRight aria-hidden="true" size={18} /></a></div></section>
+</BaseLayout>
+
+<style>
+  .page-header h1 { margin: 0; font-size: 5rem; line-height: 1; letter-spacing: 0; }
+  .about-intro { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: clamp(50px, 9vw, 120px); align-items: end; }
+  .intro-copy { max-width: 720px; margin: 24px 0 0; color: var(--ink-muted); font-size: 1.15rem; }
+  .facts { margin: 0; }
+  .facts div { padding: 14px 0; border-top: 1px solid var(--line); }
+  dt { color: var(--ink-muted); font-size: .72rem; font-weight: 750; }
+  dd { margin: 4px 0 0; font-size: .88rem; overflow-wrap: anywhere; }
+  dd a { color: var(--brand); }
+  .about-skills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 34px; }
+  .about-skills section { border-top: 2px solid var(--ink); padding-top: 18px; }
+  .about-skills h2 { margin: 0 0 14px; font-size: 1.1rem; letter-spacing: 0; }
+  .about-skills ul { display: flex; flex-wrap: wrap; gap: 7px; margin: 0; padding: 0; list-style: none; }
+  .about-skills li { padding: 4px 9px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink-muted); font-size: .8rem; }
+  .experience ol { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+  .experience li { display: grid; grid-template-columns: 180px 1fr; gap: 30px; padding: 28px 0; border-bottom: 1px solid var(--line); }
+  .experience time { color: var(--brand); font: 700 .82rem/1.6 ui-monospace, monospace; }
+  .experience h2 { margin: 0 0 7px; font-size: 1.2rem; letter-spacing: 0; }
+  .experience p, .supporting-grid p { margin: 0; color: var(--ink-muted); }
+  .supporting-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(40px, 9vw, 120px); }
+  .supporting-grid h2 { margin: 0 0 12px; font-size: 1.35rem; letter-spacing: 0; }
+  .resume-state { padding-left: 34px; border-left: 1px solid var(--line); }
+  .about-contact { display: flex; align-items: center; justify-content: space-between; gap: 40px; }
+  .about-contact h2 { max-width: 680px; margin: 0; font-size: 2.8rem; line-height: 1.15; letter-spacing: 0; }
+  @media (max-width: 759px) {
+    .page-header h1 { font-size: 3.2rem; }
+    .about-intro, .about-skills, .supporting-grid { grid-template-columns: 1fr; }
+    .experience li { grid-template-columns: 1fr; gap: 8px; }
+    .resume-state { padding: 28px 0 0; border-top: 1px solid var(--line); border-left: 0; }
+    .about-contact { align-items: flex-start; flex-direction: column; }
+    .about-contact h2 { font-size: 2rem; }
+  }
+</style>

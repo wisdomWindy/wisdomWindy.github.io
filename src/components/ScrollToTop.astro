@@ -1,0 +1,54 @@
+---
+import { ArrowUp } from '@lucide/astro'
+---
+
+<button class="icon-button scroll-top" type="button" aria-label="返回顶部" title="返回顶部" hidden>
+  <ArrowUp aria-hidden="true" size={20} stroke-width={1.8} />
+</button>
+
+<script>
+  const setupScrollTop = () => {
+    const button = document.querySelector<HTMLButtonElement>('.scroll-top')
+    if (!button || button.dataset.ready === 'true') return
+    button.dataset.ready = 'true'
+
+    const sync = () => {
+      button.hidden = window.scrollY < 640
+    }
+
+    sync()
+    window.addEventListener('scroll', sync, { passive: true })
+    button.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      })
+      document.querySelector<HTMLElement>('.skip-link')?.focus({ preventScroll: true })
+    })
+  }
+
+  setupScrollTop()
+  document.addEventListener('astro:page-load', setupScrollTop)
+</script>
+
+<style>
+  .scroll-top {
+    position: fixed;
+    z-index: 20;
+    right: 24px;
+    bottom: 24px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .scroll-top[hidden] {
+    display: none;
+  }
+
+  @media (max-width: 639px) {
+    .scroll-top {
+      right: 14px;
+      bottom: 14px;
+    }
+  }
+</style>

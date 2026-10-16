@@ -1,0 +1,33 @@
+---
+import BlogPostRow from '../../components/BlogPostRow.astro'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { getAllTags, getPublishedPosts } from '../../lib/content'
+
+const posts = await getPublishedPosts()
+const tags = getAllTags(posts)
+---
+
+<BaseLayout title="文章" description="wisdomWindy 关于前端架构、工程化、可访问性与测试的技术文章。">
+  <header class="page-header section"><div class="blog-width"><p class="eyebrow">Writing</p><h1>文章</h1><p>记录技术选择背后的理由，以及实现过程中值得复用的方法。</p></div></header>
+  <main class="section section--subtle"><div class="blog-width">
+    <nav class="tag-nav" aria-label="文章标签">
+      {tags.map((tag) => <a href={`/blog/tags/${tag.slug}/`}><span>{tag.label}</span><small>{tag.count}</small></a>)}
+    </nav>
+    <div class="post-list">
+      {posts.length > 0 ? posts.map((post) => <BlogPostRow post={post} />) : <p>文章正在整理，可以先浏览<a href="/projects/">项目案例</a>。</p>}
+    </div>
+  </div></main>
+</BaseLayout>
+
+<style>
+  .blog-width { width: min(calc(100% - 40px), 960px); margin-inline: auto; }
+  .page-header { padding-bottom: 56px; }
+  h1 { margin: 0; font-size: 5rem; line-height: 1; letter-spacing: 0; }
+  .page-header p:last-child { max-width: 620px; margin: 20px 0 0; color: var(--ink-muted); font-size: 1.08rem; }
+  .tag-nav { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 28px; }
+  .tag-nav a { display: inline-flex; min-height: 36px; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 5px; color: var(--ink-muted); font-size: .78rem; text-decoration: none; }
+  .tag-nav a:hover { border-color: var(--ink-muted); color: var(--ink); }
+  .tag-nav small { display: grid; min-width: 18px; height: 18px; place-items: center; border-radius: 50%; background: var(--surface-strong); font-size: .65rem; }
+  .post-list { border-top: 1px solid var(--line); }
+  @media (max-width: 639px) { h1 { font-size: 3.2rem; } .blog-width { width: min(calc(100% - 28px), 960px); } }
+</style>

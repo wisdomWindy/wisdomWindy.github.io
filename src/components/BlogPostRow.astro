@@ -1,0 +1,116 @@
+---
+import { ArrowUpRight } from '@lucide/astro'
+import type { CollectionEntry } from 'astro:content'
+import { estimateReadingMinutes, slugifyTag } from '../lib/content'
+import { formatDate, formatReadingTime } from '../lib/format'
+
+interface Props {
+  post: CollectionEntry<'blog'>
+}
+
+const { post } = Astro.props
+const readingTime = post.data.readingTime ?? estimateReadingMinutes(post.body ?? '')
+---
+
+<article class="post-row" data-post-row>
+  <div class="post-row__meta">
+    <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+    <span>{formatReadingTime(readingTime)}</span>
+  </div>
+  <div class="post-row__content">
+    <h2><a href={`/blog/${post.id}/`}>{post.data.title}</a></h2>
+    <p>{post.data.description}</p>
+    <ul aria-label="文章标签">
+      {post.data.tags.map((tag) => <li><a href={`/blog/tags/${slugifyTag(tag)}/`}>{tag}</a></li>)}
+    </ul>
+  </div>
+  <a class="post-row__arrow" href={`/blog/${post.id}/`} aria-label={`阅读：${post.data.title}`} title="阅读文章">
+    <ArrowUpRight aria-hidden="true" size={20} stroke-width={1.8} />
+  </a>
+</article>
+
+<style>
+  .post-row {
+    display: grid;
+    grid-template-columns: 165px minmax(0, 1fr) 42px;
+    gap: 30px;
+    align-items: start;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .post-row__meta {
+    color: var(--ink-muted);
+    font-size: 0.76rem;
+  }
+
+  .post-row__meta span {
+    display: block;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.28rem;
+    line-height: 1.3;
+    letter-spacing: 0;
+  }
+
+  h2 a {
+    text-decoration: none;
+  }
+
+  h2 a:hover {
+    color: var(--brand);
+  }
+
+  p {
+    margin: 8px 0 13px;
+    color: var(--ink-muted);
+    font-size: 0.9rem;
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  ul a {
+    color: var(--brand);
+    font-size: 0.74rem;
+    text-decoration: none;
+  }
+
+  .post-row__arrow {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    color: var(--ink-muted);
+  }
+
+  .post-row__arrow:hover {
+    border-color: var(--ink-muted);
+    color: var(--ink);
+  }
+
+  @media (max-width: 639px) {
+    .post-row {
+      grid-template-columns: 1fr 42px;
+      gap: 12px;
+    }
+
+    .post-row__meta {
+      grid-column: 1 / -1;
+    }
+
+    .post-row__content {
+      min-width: 0;
+    }
+  }
+</style>

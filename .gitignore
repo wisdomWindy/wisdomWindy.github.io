@@ -8,9 +8,12 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+.astro
 .DS_Store
 dist
 docs/*
+!docs/requests/
+!docs/requests/**
 dist-ssr
 coverage
 *.local

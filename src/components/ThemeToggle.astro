@@ -1,0 +1,55 @@
+---
+import { Moon, Sun } from '@lucide/astro'
+---
+
+<button class="icon-button theme-toggle" type="button" aria-label="切换到深色模式" title="切换主题">
+  <Sun class="theme-toggle__sun" aria-hidden="true" size={19} stroke-width={1.8} />
+  <Moon class="theme-toggle__moon" aria-hidden="true" size={19} stroke-width={1.8} />
+</button>
+
+<script>
+  const setupThemeToggle = () => {
+    const button = document.querySelector<HTMLButtonElement>('.theme-toggle')
+    if (!button || button.dataset.ready === 'true') return
+    button.dataset.ready = 'true'
+
+    const sync = () => {
+      const isDark = document.documentElement.dataset.theme === 'dark'
+      button.setAttribute('aria-label', isDark ? '切换到浅色模式' : '切换到深色模式')
+      button.setAttribute('aria-pressed', String(isDark))
+    }
+
+    sync()
+    button.addEventListener('click', () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'
+      document.documentElement.dataset.theme = next
+      document.documentElement.style.colorScheme = next
+      try {
+        localStorage.setItem('theme', next)
+      } catch {
+        // Theme still applies for this session when storage is unavailable.
+      }
+      document.querySelector('meta[name="theme-color"]')?.setAttribute(
+        'content', next === 'dark' ? '#101214' : '#ffffff',
+      )
+      sync()
+    })
+  }
+
+  setupThemeToggle()
+  document.addEventListener('astro:page-load', setupThemeToggle)
+</script>
+
+<style>
+  .theme-toggle__moon {
+    display: none;
+  }
+
+  :global(:root[data-theme='dark']) .theme-toggle__sun {
+    display: none;
+  }
+
+  :global(:root[data-theme='dark']) .theme-toggle__moon {
+    display: block;
+  }
+</style>

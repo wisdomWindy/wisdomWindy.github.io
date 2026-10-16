@@ -1,0 +1,25 @@
+---
+import ProjectCard from '../../components/ProjectCard.astro'
+import ProjectFilter from '../../components/ProjectFilter.astro'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { getPublishedProjects } from '../../lib/content'
+
+const projects = await getPublishedProjects()
+const technologies = [...new Set(projects.flatMap(({ data }) => data.techStack))].sort((left, right) => left.localeCompare(right, 'en-US'))
+---
+
+<BaseLayout title="项目" description="wisdomWindy 的前端项目案例：背景、责任、实现取舍与结果。">
+  <header class="page-header section"><div class="container"><p class="eyebrow">Selected Work</p><h1>项目</h1><p>不只展示结果，也记录问题是如何被拆分、实现和验证的。</p></div></header>
+  <section class="projects-section section section--subtle"><div class="container">
+    <ProjectFilter technologies={technologies} total={projects.length} />
+    {projects.length > 0 ? <div class="project-grid">{projects.map((project, index) => <ProjectCard project={project} eager={index < 3} />)}</div> : <p>项目案例正在整理中。</p>}
+  </div></section>
+</BaseLayout>
+
+<style>
+  .page-header { padding-bottom: 56px; }
+  h1 { margin: 0; font-size: 5rem; line-height: 1; letter-spacing: 0; }
+  .page-header p:last-child { max-width: 640px; margin: 20px 0 0; color: var(--ink-muted); font-size: 1.08rem; }
+  .projects-section { border-bottom: 0; }
+  @media (max-width: 639px) { h1 { font-size: 3.2rem; } }
+</style>

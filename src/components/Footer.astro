@@ -1,0 +1,84 @@
+---
+import { CodeXml, Mail, Rss } from '@lucide/astro'
+import { siteConfig } from '../site.config'
+
+const year = new Date().getFullYear()
+---
+
+<footer class="site-footer">
+  <div class="footer-inner container">
+    <div>
+      <strong>{siteConfig.name}</strong>
+      <p>{siteConfig.role} · 从 {year === 2021 ? year : 2021} 年开始持续构建</p>
+    </div>
+    <nav class="footer-links" aria-label="社交与订阅">
+      <a href={siteConfig.github} target="_blank" rel="noreferrer" aria-label="GitHub" title="GitHub">
+        <CodeXml aria-hidden="true" size={20} stroke-width={1.8} />
+      </a>
+      <a href={`mailto:${siteConfig.email}`} aria-label="电子邮件" title="电子邮件">
+        <Mail aria-hidden="true" size={20} stroke-width={1.8} />
+      </a>
+      <a href="/rss.xml" aria-label="RSS" title="RSS">
+        <Rss aria-hidden="true" size={20} stroke-width={1.8} />
+      </a>
+    </nav>
+    <small>© {year} {siteConfig.name}</small>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--line);
+    background: var(--surface-subtle);
+  }
+
+  .footer-inner {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 32px;
+    min-height: 164px;
+    padding-block: 28px;
+  }
+
+  .footer-inner strong {
+    font-size: 1rem;
+  }
+
+  .footer-inner p,
+  .footer-inner small {
+    margin: 3px 0 0;
+    color: var(--ink-muted);
+    font-size: 0.82rem;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 8px;
+  }
+
+  .footer-links a {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    border-radius: 5px;
+    color: var(--ink-muted);
+  }
+
+  .footer-links a:hover {
+    background: var(--surface-strong);
+    color: var(--ink);
+  }
+
+  @media (max-width: 679px) {
+    .footer-inner {
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+    }
+
+    .footer-inner small {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

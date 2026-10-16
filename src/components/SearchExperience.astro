@@ -1,0 +1,143 @@
+---
+import { Search, X } from '@lucide/astro'
+---
+
+<div class="search-experience" data-search-root>
+  <div class="search-control">
+    <Search aria-hidden="true" size={21} stroke-width={1.8} />
+    <label class="sr-only" for="site-search">搜索文章和项目</label>
+    <input id="site-search" type="search" placeholder="输入技术、主题或项目名称" autocomplete="off" />
+    <button class="clear-search" type="button" aria-label="清空搜索" title="清空搜索" hidden><X aria-hidden="true" size={19} /></button>
+  </div>
+  <p class="search-status" role="status" aria-live="polite">输入关键词开始搜索</p>
+  <div class="search-results" data-search-results></div>
+  <div class="search-fallback">
+    <span>也可以直接浏览</span>
+    <a href="/blog/">全部文章</a>
+    <a href="/projects/">全部项目</a>
+  </div>
+</div>
+
+<script>
+  import { mapPagefindData, normalizeQuery, type PagefindData } from '../lib/search'
+
+  interface PagefindResult {
+    data: () => Promise<PagefindData>
+  }
+
+  interface PagefindModule {
+    search: (query: string) => Promise<{ results: PagefindResult[] }>
+  }
+
+  let pagefindPromise: Promise<PagefindModule> | undefined
+  const pagefindPath = '/pagefind/pagefind.js'
+
+  const loadPagefind = () => {
+    pagefindPromise ??= import(/* @vite-ignore */ pagefindPath) as Promise<PagefindModule>
+    return pagefindPromise
+  }
+
+  const setupSearch = () => {
+    const root = document.querySelector<HTMLElement>('[data-search-root]')
+    if (!root || root.dataset.ready === 'true') return
+    root.dataset.ready = 'true'
+    const input = root.querySelector<HTMLInputElement>('#site-search')
+    const clear = root.querySelector<HTMLButtonElement>('.clear-search')
+    const status = root.querySelector<HTMLElement>('.search-status')
+    const results = root.querySelector<HTMLElement>('[data-search-results]')
+    if (!input || !clear || !status || !results) return
+
+    let timer = 0
+    let requestVersion = 0
+
+    const renderResults = async (query: string) => {
+      const version = ++requestVersion
+      if (!query) {
+        status.textContent = '输入关键词开始搜索'
+        results.replaceChildren()
+        return
+      }
+
+      status.textContent = '正在搜索…'
+      try {
+        const pagefind = await loadPagefind()
+        const response = await pagefind.search(query)
+        const mapped = await Promise.all(response.results.map(async (result) => mapPagefindData(await result.data())))
+        if (version !== requestVersion) return
+        results.replaceChildren()
+
+        if (mapped.length === 0) {
+          status.textContent = '没有找到匹配结果'
+          return
+        }
+
+        status.textContent = `找到 ${mapped.length} 条结果`
+        for (const item of mapped) {
+          const article = document.createElement('article')
+          article.dataset.searchResult = ''
+          const meta = document.createElement('p')
+          meta.textContent = item.type
+          const title = document.createElement('h2')
+          const link = document.createElement('a')
+          link.href = item.url
+          link.textContent = item.title
+          title.append(link)
+          const excerpt = document.createElement('p')
+          excerpt.className = 'result-excerpt'
+          excerpt.innerHTML = item.excerpt
+          article.append(meta, title, excerpt)
+          results.append(article)
+        }
+      } catch {
+        if (version !== requestVersion) return
+        results.replaceChildren()
+        status.textContent = '搜索索引暂时不可用，请直接浏览文章或项目'
+      }
+    }
+
+    const update = () => {
+      const query = normalizeQuery(input.value)
+      clear.hidden = !query
+      const url = new URL(window.location.href)
+      query ? url.searchParams.set('q', query) : url.searchParams.delete('q')
+      history.replaceState(null, '', url)
+      window.clearTimeout(timer)
+      timer = window.setTimeout(() => void renderResults(query), 150)
+    }
+
+    const initialQuery = normalizeQuery(new URL(window.location.href).searchParams.get('q') ?? '')
+    input.value = initialQuery
+    clear.hidden = !initialQuery
+    input.addEventListener('input', update)
+    clear.addEventListener('click', () => {
+      input.value = ''
+      update()
+      input.focus()
+    })
+    if (initialQuery) void renderResults(initialQuery)
+  }
+
+  setupSearch()
+  document.addEventListener('astro:page-load', setupSearch)
+</script>
+
+<style>
+  .search-experience { min-height: 420px; }
+  .search-control { display: grid; grid-template-columns: 24px minmax(0, 1fr) 42px; align-items: center; gap: 12px; padding: 7px 8px 7px 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+  .search-control:focus-within { border-color: var(--focus); box-shadow: 0 0 0 2px color-mix(in srgb, var(--focus) 18%, transparent); }
+  input { width: 100%; min-height: 48px; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 1rem; }
+  .clear-search { display: grid; width: 42px; height: 42px; place-items: center; border: 0; border-radius: 5px; background: transparent; color: var(--ink-muted); cursor: pointer; }
+  .clear-search:hover { background: var(--surface-subtle); color: var(--ink); }
+  .clear-search[hidden] { display: none; }
+  .search-status { min-height: 28px; margin: 14px 0; color: var(--ink-muted); font-size: .84rem; }
+  .search-results { border-top: 1px solid var(--line); }
+  .search-results :global(article) { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 8px 24px; padding: 24px 0; border-bottom: 1px solid var(--line); }
+  .search-results :global(article > p:first-child) { grid-row: 1 / 3; margin: 3px 0 0; color: var(--brand); font-size: .72rem; font-weight: 750; }
+  .search-results :global(h2) { margin: 0; font-size: 1.12rem; letter-spacing: 0; }
+  .search-results :global(h2 a) { text-decoration: none; }
+  .search-results :global(.result-excerpt) { margin: 0; color: var(--ink-muted); font-size: .86rem; }
+  .search-results :global(mark) { background: color-mix(in srgb, var(--accent) 24%, transparent); color: inherit; }
+  .search-fallback { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 28px; color: var(--ink-muted); font-size: .82rem; }
+  .search-fallback a { color: var(--brand); font-weight: 700; text-decoration: none; }
+  @media (max-width: 559px) { .search-results :global(article) { grid-template-columns: 1fr; } .search-results :global(article > p:first-child) { grid-row: auto; } }
+</style>
